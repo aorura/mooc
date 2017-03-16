@@ -5,15 +5,14 @@
 
 using namespace std;
 
-class String
+class Str
 {
-private :
+public:
     char *str;
     int size;
     int *ref;
-public :
-    String() : str(nullptr), ref(nullptr) { }
-    String(char *ca) {
+
+    Str(char *ca) {
         size = strlen(ca);
         str = new char[strlen(ca)+1];
         strcpy(str,ca);
@@ -21,12 +20,12 @@ public :
         *ref = 1;
     }
 
-    String(const String& s) : str(s.str), ref(s.ref) {
+    void incRef() {
         (*ref)++;
     }
-
-    ~String() {
-        release();
+ 
+    void decRef() {
+        (*ref)--;
     }
 
     void release() {
@@ -37,15 +36,40 @@ public :
 			}
 		}
     }
+
+    char* getStr() {
+        return str;
+    }
+};
     
+class String
+{
+private :
+    Str *str;
+
+public :
+    String() : str(nullptr) { }
+    String(char *ca) {
+        str = new Str(ca);
+    }
+
+    String(const String& s) : str(s.str) {
+        if (str != nullptr) 
+            str->incRef();
+    }
+
+    ~String() {
+        if (str != nullptr)
+        	str->release();
+    }
+
     String& operator=(const String& right) {
         // Increment a right operand reference count.
-        (*right.ref)++;
+         right.str->incRef();
 
-		release();
+		str->release();
 
         str = right.str;
-        ref = right.ref;
     }
 
     friend ostream& operator<<(ostream& os, const String& s);
@@ -56,7 +80,7 @@ ostream& operator<<(ostream& os, const String& s)
     if (s.str == nullptr) {
         cout << "String is null" << endl;
     } else {
-        os << s.str << endl;
+        os << s.str->getStr() << endl;
     }
 
     return os;
