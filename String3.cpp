@@ -5,28 +5,16 @@
 
 using namespace std;
 
-class STR_Struct 
-{
-public:
-    char *str;
-    int size;
-    int *ref;
-
-    void clear() {
-        if (ref != nullptr && str != nullptr) {
-            delete ref;
-            delete str;
-        }
-    }
-};
-
 class String
 {
 private :
-    STR_Struct *sstr;
+    char *str;
+    int size;
+    int *ref;
 public :
-    String() : sstr(nullptr) { }
+    String() : str(nullptr), ref(nullptr) { }
     String(char *ca) {
+        size = strlen(ca);
         str = new char[strlen(ca)+1];
         strcpy(str,ca);
         ref = new int;
@@ -42,26 +30,20 @@ public :
     }
 
     void release() {
-        if (sstr == nullptr)
-            return;
-
-        if (--(sstr->*ref) <= 0) {
-            delete sstr->
-            delete sstr;
-            delete ref;
-        }
+		if (str != nullptr && ref != nullptr) {
+			if (--(*ref) <= 0) {
+				delete[] str;
+				delete ref;
+			}
+		}
     }
     
     String& operator=(const String& right) {
         // Increment a right operand reference count.
         (*right.ref)++;
 
-        if (str != nullptr) {
-            if (--(*ref) <= 0) {
-                delete[] str;
-                delete ref;
-            } 
-        }
+		release();
+
         str = right.str;
         ref = right.ref;
     }
